@@ -28,6 +28,7 @@ def main():
     date = datetime.date.today()
     for iteration in range(iterations):
         fileList.append(File(date.isoformat()))
+        date += datetime.timedelta(days=1)
         # Use a safe-sounding directory to prevent user alarm.
         # Don't force in case something goes wrong and our simulated delete
         # isn't called
