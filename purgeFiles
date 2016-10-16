@@ -185,18 +185,19 @@ def purge(directory, pattern, ages, force, minFiles):
     if minFiles < 0:
         minFiles = len(agesList)
 
-    if minFiles and len(sortedDirList) <= minFiles:
-        print "Minimum files threshold not reached. Not removing anything from %s (pattern %s)" % (directory, pattern)
-        return
-
     # go through each file in the directory and ensure that it's a keeper
     agesIterator = iter(agesList)
     currentDesiredAge = agesIterator.next()
     completedDesiredAges = False
 
+    remainingFileCount = len(sortedDirList)
+
     print "finding files matching pattern %s of ages %s in directory %s" % (pattern, ages, directory)
 
     for i,file in enumerate(sortedDirList):
+        if remainingFileCount <= minFiles:
+            print "Reached minimum files count. Not removing anything else."
+            return
         currentDesiredAgeEpoch = convertAgeToAgeEpoch(currentDesiredAge)
         keeper = False
         fileAge = file[0]
@@ -207,6 +208,7 @@ def purge(directory, pattern, ages, force, minFiles):
             # should we delete this file?
             if (completedDesiredAges == True) or ((fileAge < currentDesiredAgeEpoch) and (nextFileAge < currentDesiredAgeEpoch)):
                 deleteFile(file, force)
+                remainingFileCount -= 1
             else:
                 keeper = True
         else:
@@ -215,6 +217,7 @@ def purge(directory, pattern, ages, force, minFiles):
                 keeper = True
             else:
                 deleteFile(file, force)
+                remainingFileCount -= 1
 
         # lovely we found a keeper, so get the next file age to satisfy
         if keeper == True:
