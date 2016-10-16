@@ -35,6 +35,14 @@ def main():
         pf.purge("simulation://", "*", ages, False)
         print >>sys.stderr, fileList
         ageAll()
+    if 0:
+        # For fun, pretend a year goes by and no new files are created, but
+        # purgeFiles gets run. (e.g. an errant system time update and cron
+        # calls for a purge
+        ageAll(365*24*60*60)
+        pf.purge("simulation://", "*", ages, False)
+        print >>sys.stderr, fileList
+
 
 
 
@@ -57,9 +65,9 @@ class File(object):
     def __repr__(self):
         return self.name
 
-def ageAll():
+def ageAll(seconds=24*60*60):
     for i in fileList:
-        i.age()
+        i.age(seconds)
 
 def deleteFile(file, force):
     """Override, simulate a deletion"""
