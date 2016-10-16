@@ -195,12 +195,13 @@ def purge(directory, pattern, ages, force, minFiles):
     print "finding files matching pattern %s of ages %s in directory %s" % (pattern, ages, directory)
 
     for i,file in enumerate(sortedDirList):
-        if remainingFileCount <= minFiles:
-            print "Reached minimum files count. Not removing anything else."
-            return
         currentDesiredAgeEpoch = convertAgeToAgeEpoch(currentDesiredAge)
         keeper = False
         fileAge = file[0]
+        if remainingFileCount <= minFiles:
+            fileAgeDays = convertAgeEpochToAge(fileAge)
+            print "%s: keeping this file of age %d days because minimum file count reached" % (file[2], fileAgeDays)
+            continue
         if i < len(sortedDirList)-1:
             nextFile = sortedDirList[i+1]
             nextFileAge = nextFile[0]
@@ -227,6 +228,9 @@ def purge(directory, pattern, ages, force, minFiles):
                 currentDesiredAge = agesIterator.next()
             except StopIteration:
                 completedDesiredAges = True
+    if remainingFileCount <= minFiles:
+        # We are keeping everything else and already printed info about it
+        return
 
     # if we haven't made our way through all the requested ages, process them anyway, solely to message the user
     if completedDesiredAges == False:
