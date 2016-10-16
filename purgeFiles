@@ -26,6 +26,7 @@ def main(argv):
     ages = 'unset'
     directory = 'unset'
     pattern = '*'
+    minFiles = 0
 
     # process command line
     try:
@@ -48,6 +49,8 @@ def main(argv):
            ages = arg
        elif opt in ('-f', '--force'):
            force = True
+       elif opt in ('-m', '--minfiles'):
+           minFiles = int(arg)
 
     # verify mandatory arguments
     if ages == 'unset':
@@ -59,7 +62,7 @@ def main(argv):
        usage()
 
     # purge the directory
-    purge(directory, pattern, ages, force)
+    purge(directory, pattern, ages, force, minFiles)
 
 
 # print the usage message and bail
@@ -68,6 +71,9 @@ def usage():
     print ' -h, --help                          Print this help message';
     print ' -a, --ages=age1,age2                Desired ages to keep (in days)';
     print ' -d, --directory=dir                 Target directory';
+    print ' -m, --minfiles=num                  Maintain minimum number of matched files.'
+    print '                                     num == -1 means to use number of given ages.'
+    print '                                     num == 0 (default)'
     print ' -p, --pattern=pattern               File pattern to match';
     print ' -f, --force                         Force deletion (no simulation mode)\n';
     print 'e.g. purgeFiles --ages=1,2,4,40 --directory=/tmp --pattern="*.txt"';
@@ -166,7 +172,7 @@ def convertAgeEpochToAge(ageEpoch):
     return age
 
 # purge the specified directory
-def purge(directory, pattern, ages, force):
+def purge(directory, pattern, ages, force, minFiles):
     # make sure the backup directory is sound
     checkBackupArea(directory)
 
@@ -175,6 +181,13 @@ def purge(directory, pattern, ages, force):
 
     # get the listing of the backup directory
     sortedDirList = getSortedDirList(directory, pattern)
+
+    if minFiles < 0:
+        minFiles = len(agesList)
+
+    if minFiles and len(sortedDirList) <= minFiles:
+        print "Minimum files threshold not reached. Not removing anything from %s (pattern %s)" % (directory, pattern)
+        return
 
     # go through each file in the directory and ensure that it's a keeper
     agesIterator = iter(agesList)
