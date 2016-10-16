@@ -30,7 +30,7 @@ def main(argv):
 
     # process command line
     try:
-       opts, args = getopt.getopt(argv, 'ha:d:p:f', ['help', 'ages=', 'directory=', 'pattern=', 'force'])
+       opts, args = getopt.getopt(argv, 'ha:d:m:p:f', ['help', 'ages=', 'directory=', 'minfiles=', 'pattern=', 'force'])
        if len(args) > 0:
           print 'ignoring args: %s' % args
     except getopt.GetoptError, err:
